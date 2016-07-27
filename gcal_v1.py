@@ -60,6 +60,7 @@ def main():
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
+    
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
@@ -74,6 +75,7 @@ def main():
     if not events:
         print('No upcoming events found.')
     for event in events:
+        # need to update to make it look nice for days of the week.
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
