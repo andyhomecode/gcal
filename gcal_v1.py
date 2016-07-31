@@ -10,8 +10,9 @@ from oauth2client import tools
 
 import datetime
 
-# ANDY 2016 07 27
-# Google demo code.  Haven't changed mutch yet.
+#python-dateutil to parse the ISO date formats
+import dateutil.parser
+
 
 try:
     import argparse
@@ -54,18 +55,36 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def convertdate(textdate):
+    """Convert Google formatted date string into Python date string
+
+    Andy's amazing date converter
+    2016-08-01T11:00:00-04:00
+    to a Python format
+    """
+    formatteddatetime = datetime.strptime('2016-08-01T11:00:00-04:00', '%b %d %Y %I:%M%p')
+    return formatteddatetime
+
+
+def gt(dt_str):
+    return dateutil.parser.parse(dt_str)
+
 def main():
     """Shows basic usage of the Google Calendar API.
 
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
-    
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+    # this returns the most recent past Sunday
+    # datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
+    # figure out sunday
+    now = datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
+    
+    now = now.isoformat() + 'Z' # 'Z' indicates UTC time
     print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
         calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
@@ -75,10 +94,14 @@ def main():
     if not events:
         print('No upcoming events found.')
     for event in events:
-        # need to update to make it look nice for days of the week.
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
-
+        start = gt(event['start'].get('dateTime', event['start'].get('date')))
+        end = gt(event['end'].get('dateTime', event['end'].get('date')))
+        
+        print(start, end, event['summary'])
+        # All-day events have no time, and the end time is midnight the next day
+        if start == end - datetime.timedelta(days=1):
+            print ("all day")
+            
 
 if __name__ == '__main__':
     main()
