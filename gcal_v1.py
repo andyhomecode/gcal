@@ -14,6 +14,14 @@ import datetime
 import dateutil.parser
 
 
+# todo incorporate the weather objects
+# get the weather from noaa
+# parse it into an object that looks like this:
+#
+# forecast
+#    days[0..6]
+#        [datetime, textForecast]
+
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
