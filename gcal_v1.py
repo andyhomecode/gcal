@@ -96,7 +96,7 @@ def main():
         sunday = datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
     
     sundayiso = sunday.isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
+    # print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
         calendarId='primary', timeMin=sundayiso, maxResults=100, singleEvents=True,
         orderBy='startTime').execute()
@@ -107,12 +107,20 @@ def main():
 
     # days of week, in calendar display order, not Python order
     dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    
+
+    # This loops through the week, starting on Sunday thru Saturday
     for i in range(7):
         currentday = sunday + datetime.timedelta(days=i)
         print(i, currentday, dow[i])
-        
 
+        # TODO
+        # Print day header
+        # print any events that match the day being printed
+        # print weather forecast (need to finish and import Weather array sucker)
+        # print day footer
+        
+    
+    
     for event in events:
         start = gt(event['start'].get('dateTime', event['start'].get('date')))
         end = gt(event['end'].get('dateTime', event['end'].get('date')))
