@@ -90,22 +90,34 @@ def main():
     # this returns the most recent past Sunday
     # datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
     # figure out sunday
-    now = datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
+    if datetime.datetime.today().weekday() == 6:
+        sunday = datetime.datetime.today()
+    else:
+        sunday = datetime.datetime.today()-datetime.timedelta(days=datetime.datetime.today().weekday()+1)
     
-    now = now.isoformat() + 'Z' # 'Z' indicates UTC time
+    sundayiso = sunday.isoformat() + 'Z' # 'Z' indicates UTC time
     print('Getting the upcoming 10 events')
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
+        calendarId='primary', timeMin=sundayiso, maxResults=100, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
     if not events:
         print('No upcoming events found.')
+
+    # days of week, in calendar display order, not Python order
+    dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    
+    for i in range(7):
+        currentday = sunday + datetime.timedelta(days=i)
+        print(i, currentday, dow[i])
+        
+
     for event in events:
         start = gt(event['start'].get('dateTime', event['start'].get('date')))
         end = gt(event['end'].get('dateTime', event['end'].get('date')))
         
-        print(start, end, event['summary'])
+        #print(start, end, event['summary'])
         # All-day events have no time, and the end time is midnight the next day
         if start == end - datetime.timedelta(days=1):
             print ("all day")
