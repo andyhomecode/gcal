@@ -9,6 +9,8 @@ from oauth2client import client
 from oauth2client import tools
 
 import datetime
+from pyfiglet import Figlet
+
 
 #python-dateutil to parse the ISO date formats
 import dateutil.parser
@@ -21,6 +23,10 @@ import dateutil.parser
 # forecast
 #    days[0..6]
 #        [datetime, textForecast]
+
+
+# todo Add option to pick the week, or print out an entire month at a time
+# options for weekly layout?
 
 try:
     import argparse
@@ -63,15 +69,6 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def convertdate(textdate):
-    """Convert Google formatted date string into Python date string
-
-    Andy's amazing date converter
-    2016-08-01T11:00:00-04:00
-    to a Python format
-    """
-    formatteddatetime = datetime.strptime('2016-08-01T11:00:00-04:00', '%b %d %Y %I:%M%p')
-    return formatteddatetime
 
 
 def gt(dt_str):
@@ -102,33 +99,34 @@ def main():
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
-    if not events:
-        print('No upcoming events found.')
+    #if not events:
+    #    print('No upcoming events found.')
 
     # days of week, in calendar display order, not Python order
     dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
+
+    f = Figlet(font='big')
+    print(f.renderText("Maxwell Calendar"))
+
     # This loops through the week, starting on Sunday thru Saturday
     for i in range(7):
         currentday = sunday + datetime.timedelta(days=i)
-        print(i, currentday, dow[i])
+        print(dow[i], currentday.date())
 
         # TODO
-        # Print day header
-        # print any events that match the day being printed
         # print weather forecast (need to finish and import Weather array sucker)
         # print day footer
         
+        for event in events:
+            start = gt(event['start'].get('dateTime', event['start'].get('date')))
+            end = gt(event['end'].get('dateTime', event['end'].get('date')))
+            if start.date() == currentday.date():
+                if start == end - datetime.timedelta(days=1): # All-day events have no time, and the end time is midnight the next day
+                    print("  ", event['summary'])
+                else:
+                    print("  ", event['summary'], start.time())
     
-    
-    for event in events:
-        start = gt(event['start'].get('dateTime', event['start'].get('date')))
-        end = gt(event['end'].get('dateTime', event['end'].get('date')))
-        
-        #print(start, end, event['summary'])
-        # All-day events have no time, and the end time is midnight the next day
-        if start == end - datetime.timedelta(days=1):
-            print ("all day")
             
 
 if __name__ == '__main__':
