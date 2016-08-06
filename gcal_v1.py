@@ -126,7 +126,7 @@ def main(weeksAhead=0):
                 if start == end - datetime.timedelta(days=1): # All-day events have no time, and the end time is midnight the next day
                     print(event['summary'])
                 else:
-                    print(event['summary'], start.time())
+                    print(event['summary'], start.time(), "to", end.time() )
     
         # loop through the weather array putting out the forecast
         for j in weatherArray:
