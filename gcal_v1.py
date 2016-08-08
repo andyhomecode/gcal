@@ -126,7 +126,7 @@ def main(weeksAhead=0):
                 if start == end - datetime.timedelta(days=1): # All-day events have no time, and the end time is midnight the next day
                     print(event['summary'])
                 else:
-                    print(event['summary'], start.time().strftime("%-I:%M%p"), "to", end.time().strftime("%-I:%M%p") ) # show times in 12-hour AM/PM format
+                    print(event['summary'], start.time().strftime("%I:%M%p"), "to", end.time().strftime("%I:%M%p") ) # show times in 12-hour AM/PM format, the %-I for trimmed hours doesn't work on Windows
     
         # loop through the weather array putting out the forecast
         for j in weatherArray:
