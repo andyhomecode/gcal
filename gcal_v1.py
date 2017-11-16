@@ -21,11 +21,12 @@ import dateutil.parser
 
 
 
-#try:
-#    import argparse
-#    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-#except ImportError:
-#    flags = None
+#This is used by GoogleAPI to figure out if Python 2.x or 3.x
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
@@ -89,10 +90,21 @@ def main(weeksAhead=0):
     sunday = sunday + datetime.timedelta(weeks=weeksAhead)
     
     sundayiso = sunday.isoformat() + 'Z' # 'Z' indicates UTC time
-   
 
+    # SAMPLE GOOGLE CODE TO LIST CALENDARS
+    page_token = None
+    while True:
+      calendar_list = service.calendarList().list(pageToken=page_token).execute()
+      for calendar_list_entry in calendar_list['items']:
+        print(calendar_list_entry['summary'], calendar_list_entry['id'])
+      page_token = calendar_list.get('nextPageToken')
+      if not page_token:
+        break
+    # END SAMPLE CODE TO LIST CALENDARS
+
+    # changed from 'primary' calendar to '21edsfm4do6ila0vf41039quj1qci883@import.calendar.google.com' to get the AirBnB one
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=sundayiso, maxResults=100, singleEvents=True,
+        calendarId='21edsfm4do6ila0vf41039quj1qci883@import.calendar.google.com', timeMin=sundayiso, maxResults=100, singleEvents=True,
         orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
